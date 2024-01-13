@@ -2,7 +2,7 @@
 layout: about
 title: about
 permalink: /
-subtitle: Northwestern University, Evanston IL.
+# subtitle: Northwestern University, Evanston IL.
 
 # profile:
 #   align: right
