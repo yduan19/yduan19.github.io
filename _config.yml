@@ -2,8 +2,8 @@
 # Site settings
 # -----------------------------------------------------------------------------
 
-title: blank # the website title (if blank, full name will be used instead)
-first_name: Yifei Duan
+title: Yifei Duan #<span style="font-size:large;">PhD</span> # the website title (if blank, full name will be used instead)
+first_name: 
 middle_name: 
 last_name: 
 email: you@example.com

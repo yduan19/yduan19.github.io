@@ -21,7 +21,11 @@ social: false # includes social icons at the bottom of the page
 
 <!-- Write your biography here. Tell the world about yourself. Link to your favorite [subreddit](http://reddit.com). You can put a picture in, too. The code is already in, just name your picture `prof_pic.jpg` and put it in the `img/` folder. -->
 
-Hello, I am a postodctoral researcher at Northwestern University working on computational modeling of complex systems. My research spans the fields of mathematics, physics, machine learning, and computer science.
+Hello, I am a postodctoral researcher at Northwestern University working on computational modeling of complex fluids. My research spans the fields of mathematics, physics, machine learning, and computer science.
+
+"If you can't explain it simply you don't understand it well enough"
+--Albert Einstein\\
+This website reflects my efforts to share my research, keep abreast of machine learning trends, and impart insights and learnings along the journey.
 
 <!-- Put your address / P.O. box / other info right below your picture. You can also disable any of these elements by editing `profile` property of the YAML header of your `_pages/about.md`. Edit `_bibliography/papers.bib` and Jekyll will render your [publications page](/al-folio/publications/) automatically.
 
