@@ -16,6 +16,9 @@ Segregation, or "demixing," of granular materials differing in size, density, or
 with broad implications in situations ranging from material handling in the pharmaceutical, chemical, and processes industries to natural
 phenomena such as debris flow and sediment transport.
 
+We want to engineer approaches to suppress segregation
+so that granular materials remain mixed. 
+
 <style>
     .custom-image {
         display: flex;
