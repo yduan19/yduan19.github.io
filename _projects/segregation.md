@@ -2,13 +2,13 @@
 layout: page
 title: Particle Segregation
 description: This project is supported by the National Science Foundation under Grant No. CBET-1929265.
-img: assets/img/proj_segregation/density.gif
+img: assets/img/proj_segregation/size.gif
 importance: 1
 category: work
 related_publications: false
 ---
 
-### Why do we study particle segregation
+### When it comes to challenges in bulk material handling, no discussion would be complete without touching on segregation.
 
 After water, granular media are the most ubiquitous precursor material used in industry with an estimated annual consumption exceeding 1 trillion kg.
 
@@ -22,19 +22,27 @@ so that granular materials remain mixed.
 <style>
     .custom-image {
         display: flex;
-        justify-content: right;
+        justify-content: flex-end;
         align-items: center;
         max-width: 80%;
     }
 </style>
 
-<div class="row">
-    <div class="col-sm mt-6 mt-md-0">
-        {% include figure.liquid path="assets/img/proj_segregation/segregated.gif" title="example image" class="img-fluid rounded z-depth-1 custom-image" %}
-    </div>
+<style>
+    .custom-image1 {
+        display: flex;
+        justify-content: flex-end;
+        align-items: right;
+        max-width: 100%;
+    }
+</style>
 
+<div class="row">
     <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/proj_segregation/density.gif" title="example image" class="img-fluid rounded z-depth-1 custom-image" %}
+        {% include figure.liquid path="assets/img/proj_segregation/size.gif" title="example image" class="img-fluid rounded z-depth-1 custom-image" %}
+    </div>
+    <div class="col-sm mt-3 mt-md-0">
+        {% include figure.liquid path="assets/img/proj_segregation/densit.gif" title="example image" class="img-fluid rounded z-depth-1 custom-image" %}
     </div>
 </div>
 <div class="caption">
@@ -44,7 +52,21 @@ so that granular materials remain mixed.
 </div>
 
 
-### What tools are used
+### Prevent segregation by choosing the right combination of size and density
+
+420 numerical simulations were conducted using code running on CUDA-enabled GPUs (RTX3090) for different combinations of size and density ratios to find the optimal combination of particle size ratio $$R_d$$, density ratio $$R_\rho$$, and mixture concentration $$c$$.
 
 
-### What have we achieved
+
+
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0">
+        {% include figure.liquid path="assets/img/proj_segregation/equilibrium.png" title="example image" class="img-fluid rounded z-depth-1 custom-image1" %}
+    </div>
+    <div class="col-sm mt-3 mt-md-0">
+        {% include figure.liquid path="assets/img/proj_segregation/mixed.gif" title="example image" class="img-fluid rounded z-depth-1 custom-image" %}
+    </div>
+</div>
+<div class="caption">
+    Particles remain mixed along the curve for iso-concentration curves for the corresponding size  and density ratio.
+</div>
