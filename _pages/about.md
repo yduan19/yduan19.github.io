@@ -25,10 +25,7 @@ social: false # includes social icons at the bottom of the page
     <img src="assets/img/fluidization1.gif" alt="Example Image 1" style="width:100px; margin-left: 10px;">
 </div>
 
-<!-- <div style="display: flex; justify-content: flex-end;">
-    <img src="assets/img/fluidization.gif" alt="Image 1" style="width:300px;">
-    <img src="assets/img/fluidization1.gif" alt="Image 2" style="width:300px;">
-</div> -->
+
 
 
 <!-- Write your biography here. Tell the world about yourself. Link to your favorite [subreddit](http://reddit.com). You can put a picture in, too. The code is already in, just name your picture `prof_pic.jpg` and put it in the `img/` folder. -->
