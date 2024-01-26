@@ -266,7 +266,7 @@ jekyll-archives:
     category: "/blog/category/:name/"
 
 display_tags: [ "coding"] # these tags will be displayed on the front page of your blog
-display_categories: ["mathmatics","physics","maching learning","computer science"] # these categories will be displayed on the front page of your blog
+display_categories: ["mathmatics","physics","maching_learning","computer_science"] # these categories will be displayed on the front page of your blog
 
 # -----------------------------------------------------------------------------
 # Jekyll Scholar
