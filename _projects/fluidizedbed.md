@@ -2,7 +2,7 @@
 layout: page
 title: Fluidized bed
 description: This project is supported by Department of Energy under Grand No. DE-FE0011453.
-img:  assets/img/fluidization.gif
+img:  assets/img/proj_fluidizedbed/fluidizedcomp.png
 importance: 2
 category: work
 related_publications: false
@@ -26,14 +26,27 @@ related_publications: false
     }
 </style>
 
+### Fluidized bed has many advantages as gas-solid reactors or powder handling processors because of its advantages of high heat and mass transfer, temperature homogeneity, and mixing property. 
 
-<div class="row">
-    <div class="col-sm mt-0 mt-md-0 mr-md-auto d-flex align-items-end">
-        {% include figure.liquid path="assets/img/fluidization.gif" title="example image" class="img-fluid rounded z-depth-1 custom-image1" %}
+<br>
+###### The primary challenge in simulating full-scale fluidized beds stems from significant scale differences: the apparatus spans meters, whereas the particles are mere millimeters or even smaller.
+
+<br>
+###### As it's not feasible to simulate the system by tracking each particle individually, the aim of this project is to model the particle phase as a continuous fluid. This is achieved by employing the Kinetic Theory of Granular Flow in the framework of Two Fluid Model (TFM).
+
+
+<div class="row justify-content-sm-center">
+    <div class="col-sm-3 mt-3 mt-md-0 d-flex align-items-end">
+        {% include figure.liquid path="assets/img/proj_fluidizedbed/fluidization" title="example image" class="img-fluid rounded z-depth-1" %}
     </div>
-    <div class="col-sm mt-0 mt-md-0 ml-md-auto d-flex align-items-end">
-        {% include figure.liquid path="assets/img/fluidization1.gif" title="example image" class="img-fluid rounded z-depth-1 custom-image" %}
+    <div class="col-sm-5 mt-3 mt-md-0 d-flex align-items-end">
+        {% include figure.liquid path="assets/img/proj_fluidizedbed/fluidization1" title="example image" class="img-fluid rounded z-depth-1" %}
     </div>
 </div>
+<div class="caption">
+    The emergence of a bubble within a fluidized bed.
+    On the left: Computational Fluid Dynamics-Discrete Element Method (CFD-DEM) simulation (5 hours to complete).
+    On the right: Two Fluid Model (TFM) simulation utilizing the Kinetic Theory of Granular Flow (completed in 10 minutes).
+</div>
 
-
+###### Both the CFD-DEM and TFM simulations are carried out using [MFiX](https://mfix.netl.doe.gov/products/mfix/), an open-source software developed by the National Energy Technology Lab. The results are visualized using [ParaView](https://www.paraview.org/)
