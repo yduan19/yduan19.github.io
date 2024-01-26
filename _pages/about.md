@@ -21,8 +21,8 @@ social: false # includes social icons at the bottom of the page
 
 
 <div style="display: flex; align-items: flex-end; justify-content: flex-end; float: right">
-    <img src="assets/img/fluidization.gif" alt="Example Image 2" style="width:80px;">
-    <img src="assets/img/fluidization1.gif" alt="Example Image 1" style="width:100px; margin-left: 10px;">
+    <img src="assets/img/proj_fluidizedbed/fluidization.gif" alt="Example Image 2" style="width:80px;">
+    <img src="assets/img/proj_fluidizedbed/fluidization1.gif" alt="Example Image 1" style="width:100px; margin-left: 10px;">
 </div>
 
 
