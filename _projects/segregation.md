@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Particle Segregation
-description: This project is supported by the National Science Foundation under Grant No. CBET-1929265.
+description: This is part of my research in collaboration with Dow and P&G, funded by the National Science Foundation.
 img: assets/img/proj_segregation/size.gif
 importance: 1
 category: work

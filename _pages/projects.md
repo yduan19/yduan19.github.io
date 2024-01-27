@@ -2,10 +2,10 @@
 layout: page
 title: projects
 permalink: /projects/
-description: some funded research projects and some fun projects
+description: some funded research projects and some machine learning projects
 nav: true
 nav_order: 3
-display_categories: [work, fun]
+# display_categories: [work, fun]
 horizontal: false
 ---
 

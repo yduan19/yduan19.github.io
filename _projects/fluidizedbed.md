@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Fluidized bed
-description: This project is supported by Department of Energy under Grand No. DE-FE0011453.
+description: This is part of my PhD work, funded by Department of Energy through a grant.
 img:  assets/img/proj_fluidizedbed/fluidizedcomp.png
 importance: 2
 category: work
