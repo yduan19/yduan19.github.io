@@ -10,7 +10,7 @@ related_publications: false
 
 
 ### ATS resume checker website hosted on Amazon Web Service: 
-### [http://aws-hosted-resume-checker.com](http://34.234.95.99:8501/)
+### [http://aws-hosted-resume-checker.com](http://54.226.187.124:8501/) and [https://llmresume.streamlit.app/](https://llmresume.streamlit.app/)
 
 <br>
 #### To start
