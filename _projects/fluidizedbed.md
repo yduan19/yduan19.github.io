@@ -39,7 +39,7 @@ related_publications: false
     <div class="col-sm-3 mt-3  d-flex align-items-end">
         {% include figure.liquid path="assets/img/proj_fluidizedbed/fluidization" title="example image" class="img-fluid rounded z-depth-1" %}
     </div>
-    <div class="col-sm-6 mt-3  d-flex align-items-end">
+    <div class="col-sm-4 mt-3  d-flex align-items-end">
         {% include figure.liquid path="assets/img/proj_fluidizedbed/fluidization1" title="example image" class="img-fluid rounded z-depth-1" %}
     </div>
 </div>
