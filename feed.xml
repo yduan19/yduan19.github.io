@@ -1,5 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator><link href="https://19revey.github.io/feed.xml" rel="self" type="application/atom+xml"/><link href="https://19revey.github.io/" rel="alternate" type="text/html" hreflang="en"/><updated>2024-03-06T07:54:31+00:00</updated><id>https://19revey.github.io/feed.xml</id><title type="html">Yifei Duan</title><subtitle>A simple, whitespace theme for academics. Based on [*folio](https://github.com/bogoli/-folio) design. </subtitle><entry><title type="html">Transformer from scratch using PyTorch</title><link href="https://19revey.github.io/blog/2023/transformer/" rel="alternate" type="text/html" title="Transformer from scratch using PyTorch"/><published>2023-07-11T12:57:00+00:00</published><updated>2023-07-11T12:57:00+00:00</updated><id>https://19revey.github.io/blog/2023/transformer</id><content type="html" xml:base="https://19revey.github.io/blog/2023/transformer/"><![CDATA[ <p><img src="https://machinelearningmastery.com/wp-content/uploads/2021/08/attention_research_1.png" width="330" height="470"/></p> <p><br/></p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">torch</span>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator><link href="https://19revey.github.io/feed.xml" rel="self" type="application/atom+xml"/><link href="https://19revey.github.io/" rel="alternate" type="text/html" hreflang="en"/><updated>2024-03-07T06:41:14+00:00</updated><id>https://19revey.github.io/feed.xml</id><title type="html">Yifei Duan</title><subtitle>A simple, whitespace theme for academics. Based on [*folio](https://github.com/bogoli/-folio) design. </subtitle><entry><title type="html">Transformer from scratch using PyTorch</title><link href="https://19revey.github.io/blog/2023/transformer/" rel="alternate" type="text/html" title="Transformer from scratch using PyTorch"/><published>2023-07-11T12:57:00+00:00</published><updated>2023-07-11T12:57:00+00:00</updated><id>https://19revey.github.io/blog/2023/transformer</id><content type="html" xml:base="https://19revey.github.io/blog/2023/transformer/"><![CDATA[<h1 align="left" style="color:purple;font-size: 2em;">Overview</h1> <ul> <li><a href="#section1">1. Introduction</a></li> <li><a href="#section2">2. Import libraries</a></li> <li><a href="#section3">3. Basic components</a> <ul> <li><a href="#section4">Create Word Embeddings</a></li> <li><a href="#section5">Positional Encoding</a></li> <li><a href="#section6">Self Attention</a></li> </ul> </li> <li><a href="#section7">4. Encoder</a></li> <li><a href="#section8">5. Decoder</a></li> <li><a href="#section9">6. Testing our code</a></li> <li><a href="#section10">7. Some useful resources</a></li> </ul> <p><a class="anchor" id="section1"></a></p> <h2 style="color:purple;font-size: 2em;">1. Introduction</h2> <p><img src="https://machinelearningmastery.com/wp-content/uploads/2021/08/attention_research_1.png" width="330" height="470"/></p> <p><a class="anchor" id="section2"></a></p> <h2 style="color:purple;font-size: 2em;">2. Import Libraries</h2> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">math</span>
+<span class="kn">import</span> <span class="n">torch</span>
 <span class="kn">import</span> <span class="n">torch.nn</span> <span class="k">as</span> <span class="n">nn</span>
+<span class="kn">import</span> <span class="n">torch.nn.functional</span> <span class="k">as</span> <span class="n">F</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">torch</span><span class="p">.</span><span class="n">__version__</span><span class="p">)</span>
 
 <span class="n">device</span> <span class="o">=</span> <span class="p">(</span>
     <span class="sh">"</span><span class="s">cuda</span><span class="sh">"</span>
@@ -8,283 +11,143 @@
     <span class="k">if</span> <span class="n">torch</span><span class="p">.</span><span class="n">backends</span><span class="p">.</span><span class="n">mps</span><span class="p">.</span><span class="nf">is_available</span><span class="p">()</span>
     <span class="k">else</span> <span class="sh">"</span><span class="s">cpu</span><span class="sh">"</span>
 <span class="p">)</span>
+</code></pre></div></div> <p><a class="anchor" id="section3"></a></p> <h2 style="color:purple;font-size: 2em;">3. Basic components</h2> <p><a class="anchor" id="section4"></a></p> <h2 style="color:purple;font-size: 1.5em;">Word Embeddings</h2> <p>Each word will be mapped to corresponding $d_{model}=512$ embedding vector. Suppose we have batch size of N=32 and sequence length of T=10 (10 words). The the output will be NxTxC (32X10X512).</p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Embedding</span><span class="p">(</span><span class="n">nn</span><span class="p">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">vocab_size</span><span class="p">,</span> <span class="n">embed_dim</span><span class="p">):</span>
+        <span class="sh">"""</span><span class="s">
+        Args:
+            vocab_size: size of vocabulary
+            embed_dim: dimension of embeddings, i.e. d_model
+        </span><span class="sh">"""</span>
+        <span class="nf">super</span><span class="p">(</span><span class="n">Embedding</span><span class="p">,</span> <span class="n">self</span><span class="p">).</span><span class="nf">__init__</span><span class="p">()</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">embed</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="nc">Embedding</span><span class="p">(</span><span class="n">vocab_size</span><span class="p">,</span> <span class="n">embed_dim</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sh">"""</span><span class="s">
+        Args:
+            x: input vector, i.e. (batch, seq_len, vocab_size)
+        Returns:
+            out: embedding vector (batch, seq_len, embed_dim)
+        </span><span class="sh">"""</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">embed</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span>
+</code></pre></div></div> <p><a class="anchor" id="section5"></a></p> <h2 style="color:purple;font-size: 1.5em;"> Positional Encoding</h2> \[PE_{(pos,2i)}=sin(pos/10000^{2i/d_{model}})\] \[PE_{(pos,2i+1)}=cos(pos/10000^{2i/d_{model}})\] <p>Here \(pos\) is the position of the word in the sentence, and \(i\) refers to position along embedding vector dimension.</p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">PositionalEmbedding</span><span class="p">(</span><span class="n">nn</span><span class="p">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="n">max_seq_len</span><span class="p">,</span><span class="n">embed_model_dim</span><span class="p">):</span>
+        <span class="sh">"""</span><span class="s">
+        Args:
+            seq_len: length of input sequence
+            embed_model_dim: demension of embedding, d_model
+        </span><span class="sh">"""</span>
+        <span class="nf">super</span><span class="p">(</span><span class="n">PositionalEmbedding</span><span class="p">,</span> <span class="n">self</span><span class="p">).</span><span class="nf">__init__</span><span class="p">()</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">embed_dim</span> <span class="o">=</span> <span class="n">embed_model_dim</span>
 
-<span class="k">class</span> <span class="nc">SelfAttention</span><span class="p">(</span><span class="n">nn</span><span class="p">.</span><span class="n">Module</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="n">embed_size</span><span class="p">,</span><span class="n">heads</span><span class="p">):</span>
-        <span class="nf">super</span><span class="p">().</span><span class="nf">__init__</span><span class="p">()</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">embed_size</span><span class="o">=</span><span class="n">embed_size</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">heads</span><span class="o">=</span><span class="n">heads</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">head_dim</span><span class="o">=</span><span class="n">embed_size</span><span class="o">//</span><span class="n">heads</span>
-        <span class="nf">assert</span><span class="p">(</span><span class="n">heads</span><span class="o">*</span><span class="n">self</span><span class="p">.</span><span class="n">head_dim</span><span class="o">==</span><span class="n">embed_size</span><span class="p">)</span>
+        <span class="n">pe</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="nf">zeros</span><span class="p">(</span><span class="n">max_seq_len</span><span class="p">,</span><span class="n">self</span><span class="p">.</span><span class="n">embed_dim</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">max_seq_len</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">self</span><span class="p">.</span><span class="n">embed_dim</span><span class="p">,</span><span class="mi">2</span><span class="p">):</span>
+                <span class="n">pe</span><span class="p">[</span><span class="n">pos</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">math</span><span class="p">.</span><span class="nf">sin</span><span class="p">(</span><span class="n">pos</span> <span class="o">/</span> <span class="p">(</span><span class="mi">10000</span> <span class="o">**</span> <span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">)</span><span class="o">/</span><span class="n">self</span><span class="p">.</span><span class="n">embed_dim</span><span class="p">)))</span>
+                <span class="n">pe</span><span class="p">[</span><span class="n">pos</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">math</span><span class="p">.</span><span class="nf">cos</span><span class="p">(</span><span class="n">pos</span> <span class="o">/</span> <span class="p">(</span><span class="mi">10000</span> <span class="o">**</span> <span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="n">self</span><span class="p">.</span><span class="n">embed_dim</span><span class="p">)))</span>
 
-        <span class="n">self</span><span class="p">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="nc">Linear</span><span class="p">(</span><span class="n">embed_size</span><span class="p">,</span> <span class="n">embed_size</span><span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">keys</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="nc">Linear</span><span class="p">(</span><span class="n">embed_size</span><span class="p">,</span> <span class="n">embed_size</span><span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">queries</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="nc">Linear</span><span class="p">(</span><span class="n">embed_size</span><span class="p">,</span> <span class="n">embed_size</span><span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">fc_out</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="nc">Linear</span><span class="p">(</span><span class="n">embed_size</span><span class="p">,</span> <span class="n">embed_size</span><span class="p">)</span>
+        <span class="c1"># adding batch dimension for broadcasting
+</span>        <span class="n">pe</span> <span class="o">=</span> <span class="n">pe</span><span class="p">.</span><span class="nf">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> 
 
-    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="n">values</span><span class="p">,</span><span class="n">keys</span><span class="p">,</span><span class="n">query</span><span class="p">,</span><span class="n">mask</span><span class="p">):</span>
+        <span class="c1"># register buffer in Pytorch -&gt;
+</span>        <span class="c1"># If you have parameters in your model, which should be saved and restored in the state_dict,
+</span>        <span class="c1"># but not trained by the optimizer, you should register them as buffers.
+</span>        <span class="n">self</span><span class="p">.</span><span class="nf">register_buffer</span><span class="p">(</span><span class="sh">'</span><span class="s">pe</span><span class="sh">'</span><span class="p">,</span> <span class="n">pe</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sh">"""</span><span class="s">
+        Args:
+            x: input vector
+        Returns:
+            x: output
+        </span><span class="sh">"""</span>
+        <span class="c1"># make embeddings relatively larger
+</span>        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="n">math</span><span class="p">.</span><span class="nf">sqrt</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">embed_dim</span><span class="p">)</span>
+        <span class="c1">#add constant to embedding
+</span>        <span class="n">seq_len</span> <span class="o">=</span> <span class="n">x</span><span class="p">.</span><span class="nf">size</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># x = x + torch.autograd.Variable(self.pe[:,:seq_len], requires_grad=False)
+</span>        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">self</span><span class="p">.</span><span class="n">pe</span><span class="p">[:,</span> <span class="p">:</span><span class="n">seq_len</span><span class="p">].</span><span class="nf">detach</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+<span class="c1"># src = torch.zeros(2,12)
+# model = PositionalEmbedding(2,12)
+# print(model(src).shape)
+</span></code></pre></div></div> <p><a class="anchor" id="section6"></a></p> <h2 style="color:purple; font-size: 1.5em;"> Self Attention</h2> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">MultiHeadAttention</span><span class="p">(</span><span class="n">nn</span><span class="p">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">embed_dim</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">n_heads</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
+        <span class="sh">"""</span><span class="s">
+        Args:
+            embed_dim: dimension of embeding vector output
+            n_heads: number of self attention heads
+        </span><span class="sh">"""</span>
+        <span class="nf">super</span><span class="p">(</span><span class="n">MultiHeadAttention</span><span class="p">,</span> <span class="n">self</span><span class="p">).</span><span class="nf">__init__</span><span class="p">()</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">embed_dim</span> <span class="o">=</span> <span class="n">embed_dim</span>    <span class="c1">#512 dim
+</span>        <span class="n">self</span><span class="p">.</span><span class="n">n_heads</span> <span class="o">=</span> <span class="n">n_heads</span>   <span class="c1">#8
+</span>        <span class="n">self</span><span class="p">.</span><span class="n">single_head_dim</span> <span class="o">=</span> <span class="nf">int</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">embed_dim</span> <span class="o">/</span> <span class="n">self</span><span class="p">.</span><span class="n">n_heads</span><span class="p">)</span>   <span class="c1">#512/8 = 64  . each key,query, value will be of 64d
+</span>       
+        <span class="c1">#key,query and value matrixes    #64 x 64   
+</span>        <span class="n">self</span><span class="p">.</span><span class="n">query_matrix</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="nc">Linear</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">single_head_dim</span> <span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">single_head_dim</span> <span class="p">,</span><span class="n">bias</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>  <span class="c1"># single key matrix for all 8 keys #512x512
+</span>        <span class="n">self</span><span class="p">.</span><span class="n">key_matrix</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="nc">Linear</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">single_head_dim</span>  <span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">single_head_dim</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">value_matrix</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="nc">Linear</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">single_head_dim</span> <span class="p">,</span><span class="n">self</span><span class="p">.</span><span class="n">single_head_dim</span> <span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="nc">Linear</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">n_heads</span><span class="o">*</span><span class="n">self</span><span class="p">.</span><span class="n">single_head_dim</span> <span class="p">,</span><span class="n">self</span><span class="p">.</span><span class="n">embed_dim</span><span class="p">)</span> 
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="n">key</span><span class="p">,</span><span class="n">query</span><span class="p">,</span><span class="n">value</span><span class="p">,</span><span class="n">mask</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>    <span class="c1">#batch_size x sequence_length x embedding_dim    # 32 x 10 x 512
+</span>        
+        <span class="sh">"""</span><span class="s">
+        Args:
+           key : key vector
+           query : query vector
+           value : value vector
+           mask: mask for decoder
         
-        <span class="n">N</span> <span class="o">=</span> <span class="n">query</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        Returns:
+           output vector from multihead attention
+        </span><span class="sh">"""</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="n">key</span><span class="p">.</span><span class="nf">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">seq_length</span> <span class="o">=</span> <span class="n">key</span><span class="p">.</span><span class="nf">size</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        
+        <span class="c1"># query dimension can change in decoder during inference. 
+</span>        <span class="c1"># so we cant take general seq_length
+</span>        <span class="n">seq_length_query</span> <span class="o">=</span> <span class="n">query</span><span class="p">.</span><span class="nf">size</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        
+        <span class="c1"># 32x10x512
+</span>        <span class="n">key</span> <span class="o">=</span> <span class="n">key</span><span class="p">.</span><span class="nf">view</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">seq_length</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">n_heads</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">single_head_dim</span><span class="p">)</span>  <span class="c1">#batch_size x sequence_length x n_heads x single_head_dim = (32x10x8x64)
+</span>        <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="p">.</span><span class="nf">view</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">seq_length_query</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">n_heads</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">single_head_dim</span><span class="p">)</span> <span class="c1">#(32x10x8x64)
+</span>        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="p">.</span><span class="nf">view</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">seq_length</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">n_heads</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">single_head_dim</span><span class="p">)</span> <span class="c1">#(32x10x8x64)
+</span>       
+        <span class="n">k</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">key_matrix</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>       <span class="c1"># (32x10x8x64)
+</span>        <span class="n">q</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">query_matrix</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>   
+        <span class="n">v</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">value_matrix</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
-        <span class="n">value_len</span><span class="p">,</span> <span class="n">key_len</span><span class="p">,</span> <span class="n">query_len</span> <span class="o">=</span> <span class="n">values</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">keys</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">query</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-
-        <span class="n">values</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">values</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>  <span class="c1"># (N, value_len, embed_size)
-</span>        <span class="n">keys</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">keys</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span>  <span class="c1"># (N, key_len, embed_size)
-</span>        <span class="n">queries</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">queries</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>  <span class="c1"># (N, query_len, embed_size)
-</span>
-        <span class="c1"># Split the embedding into self.heads different pieces
-</span>        <span class="n">values</span> <span class="o">=</span> <span class="n">values</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">value_len</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">heads</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">head_dim</span><span class="p">)</span>
-        <span class="n">keys</span> <span class="o">=</span> <span class="n">keys</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">key_len</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">heads</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">head_dim</span><span class="p">)</span>
-        <span class="n">queries</span> <span class="o">=</span> <span class="n">queries</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">query_len</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">heads</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">head_dim</span><span class="p">)</span>
-
-        <span class="c1"># Einsum does matrix mult. for query*keys for each training example
-</span>        <span class="c1"># with every other training example, don't be confused by einsum
-</span>        <span class="c1"># it's just how I like doing matrix multiplication &amp; bmm
-</span>
-        <span class="n">energy</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="nf">einsum</span><span class="p">(</span><span class="sh">"</span><span class="s">nqhd,nkhd-&gt;nhqk</span><span class="sh">"</span><span class="p">,</span> <span class="p">[</span><span class="n">queries</span><span class="p">,</span> <span class="n">keys</span><span class="p">])</span>
-        <span class="c1"># queries shape: (N, query_len, heads, heads_dim),
-</span>        <span class="c1"># keys shape: (N, key_len, heads, heads_dim)
-</span>        <span class="c1"># energy: (N, heads, query_len, key_len)
-</span>
-        <span class="c1"># Mask padded indices so their weights become 0
+        <span class="n">q</span> <span class="o">=</span> <span class="n">q</span><span class="p">.</span><span class="nf">transpose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># (batch_size, n_heads, seq_len, single_head_dim)    # (32 x 8 x 10 x 64)
+</span>        <span class="n">k</span> <span class="o">=</span> <span class="n">k</span><span class="p">.</span><span class="nf">transpose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># (batch_size, n_heads, seq_len, single_head_dim)
+</span>        <span class="n">v</span> <span class="o">=</span> <span class="n">v</span><span class="p">.</span><span class="nf">transpose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># (batch_size, n_heads, seq_len, single_head_dim)
+</span>       
+        <span class="c1"># computes attention
+</span>        <span class="c1"># adjust key for matrix multiplication
+</span>        <span class="n">k_adjusted</span> <span class="o">=</span> <span class="n">k</span><span class="p">.</span><span class="nf">transpose</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>  <span class="c1">#(batch_size, n_heads, single_head_dim, seq_ken)  #(32 x 8 x 64 x 10)
+</span>        <span class="n">product</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="nf">matmul</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">k_adjusted</span><span class="p">)</span>  <span class="c1">#(32 x 8 x 10 x 64) x (32 x 8 x 64 x 10) = #(32x8x10x10)
+</span>        
+        <span class="c1"># fill those positions of product matrix as (-1e20) where mask positions are 0
 </span>        <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">energy</span> <span class="o">=</span> <span class="n">energy</span><span class="p">.</span><span class="nf">masked_fill</span><span class="p">(</span><span class="n">mask</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="nf">float</span><span class="p">(</span><span class="sh">"</span><span class="s">-1e20</span><span class="sh">"</span><span class="p">))</span>
+             <span class="n">product</span> <span class="o">=</span> <span class="n">product</span><span class="p">.</span><span class="nf">masked_fill</span><span class="p">(</span><span class="n">mask</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="nf">float</span><span class="p">(</span><span class="sh">"</span><span class="s">-1e20</span><span class="sh">"</span><span class="p">))</span>
 
-        <span class="c1"># Normalize energy values similarly to seq2seq + attention
-</span>        <span class="c1"># so that they sum to 1. Also divide by scaling factor for
-</span>        <span class="c1"># better stability
-</span>        <span class="n">attention</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="nf">softmax</span><span class="p">(</span><span class="n">energy</span> <span class="o">/</span> <span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">embed_size</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-        <span class="c1"># attention shape: (N, heads, query_len, key_len)
+        <span class="c1">#divising by square root of key dimension
+</span>        <span class="n">product</span> <span class="o">=</span> <span class="n">product</span> <span class="o">/</span> <span class="n">math</span><span class="p">.</span><span class="nf">sqrt</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">single_head_dim</span><span class="p">)</span> <span class="c1"># / sqrt(64)
 </span>
-        <span class="n">out</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="nf">einsum</span><span class="p">(</span><span class="sh">"</span><span class="s">nhql,nlhd-&gt;nqhd</span><span class="sh">"</span><span class="p">,</span> <span class="p">[</span><span class="n">attention</span><span class="p">,</span> <span class="n">values</span><span class="p">]).</span><span class="nf">reshape</span><span class="p">(</span>
-            <span class="n">N</span><span class="p">,</span> <span class="n">query_len</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">heads</span> <span class="o">*</span> <span class="n">self</span><span class="p">.</span><span class="n">head_dim</span>
-        <span class="p">)</span>
-        <span class="c1"># attention shape: (N, heads, query_len, key_len)
-</span>        <span class="c1"># values shape: (N, value_len, heads, heads_dim)
-</span>        <span class="c1"># out after matrix multiply: (N, query_len, heads, head_dim), then
-</span>        <span class="c1"># we reshape and flatten the last two dimensions.
-</span>
-        <span class="n">out</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">fc_out</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
-        <span class="c1"># Linear layer doesn't modify the shape, final shape will be
-</span>        <span class="c1"># (N, query_len, embed_size)
-</span>
-        <span class="k">return</span> <span class="n">out</span>
+        <span class="c1">#applying softmax
+</span>        <span class="n">scores</span> <span class="o">=</span> <span class="n">F</span><span class="p">.</span><span class="nf">softmax</span><span class="p">(</span><span class="n">product</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+ 
+        <span class="c1">#mutiply with value matrix
+</span>        <span class="n">scores</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="nf">matmul</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>  <span class="c1">##(32x8x 10x 10) x (32 x 8 x 10 x 64) = (32 x 8 x 10 x 64) 
+</span>        
+        <span class="c1">#concatenated output
+</span>        <span class="n">concat</span> <span class="o">=</span> <span class="n">scores</span><span class="p">.</span><span class="nf">transpose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">).</span><span class="nf">contiguous</span><span class="p">().</span><span class="nf">view</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">seq_length_query</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">single_head_dim</span><span class="o">*</span><span class="n">self</span><span class="p">.</span><span class="n">n_heads</span><span class="p">)</span>  <span class="c1"># (32x8x10x64) -&gt; (32x10x8x64)  -&gt; (32,10,512)
+</span>        
+        <span class="n">output</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">out</span><span class="p">(</span><span class="n">concat</span><span class="p">)</span> <span class="c1">#(32,10,512) -&gt; (32,10,512)
+</span>       
+        <span class="k">return</span> <span class="n">output</span>
 
-<span class="k">class</span> <span class="nc">TransformerBlock</span><span class="p">(</span><span class="n">nn</span><span class="p">.</span><span class="n">Module</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">embed_size</span><span class="p">,</span> <span class="n">heads</span><span class="p">,</span> <span class="n">dropout</span><span class="p">,</span> <span class="n">forward_expansion</span><span class="p">):</span>
-        <span class="nf">super</span><span class="p">().</span><span class="nf">__init__</span><span class="p">()</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">attention</span> <span class="o">=</span> <span class="nc">SelfAttention</span><span class="p">(</span><span class="n">embed_size</span><span class="p">,</span> <span class="n">heads</span><span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">norm1</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="nc">LayerNorm</span><span class="p">(</span><span class="n">embed_size</span><span class="p">)</span>
-
-        <span class="n">self</span><span class="p">.</span><span class="n">feed_forward</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="nc">Sequential</span><span class="p">(</span>
-            <span class="n">nn</span><span class="p">.</span><span class="nc">Linear</span><span class="p">(</span><span class="n">embed_size</span><span class="p">,</span> <span class="n">forward_expansion</span> <span class="o">*</span> <span class="n">embed_size</span><span class="p">),</span>
-            <span class="n">nn</span><span class="p">.</span><span class="nc">ReLU</span><span class="p">(),</span>
-            <span class="n">nn</span><span class="p">.</span><span class="nc">Linear</span><span class="p">(</span><span class="n">forward_expansion</span> <span class="o">*</span> <span class="n">embed_size</span><span class="p">,</span> <span class="n">embed_size</span><span class="p">),</span>
-        <span class="p">)</span>
-
-        <span class="n">self</span><span class="p">.</span><span class="n">norm2</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="nc">LayerNorm</span><span class="p">(</span><span class="n">embed_size</span><span class="p">)</span>
-
-
-        <span class="n">self</span><span class="p">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="nc">Dropout</span><span class="p">(</span><span class="n">dropout</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">mask</span><span class="p">):</span>
-        <span class="n">attention</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">attention</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
-
-        <span class="c1"># Add skip connection, run through normalization and finally dropout
-</span>        <span class="n">x</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">dropout</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="nf">norm1</span><span class="p">(</span><span class="n">attention</span> <span class="o">+</span> <span class="n">query</span><span class="p">))</span>
-        <span class="n">forward</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">feed_forward</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-        <span class="n">out</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">dropout</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="nf">norm2</span><span class="p">(</span><span class="n">forward</span> <span class="o">+</span> <span class="n">x</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">out</span>
-
-
-<span class="k">class</span> <span class="nc">Encoder</span><span class="p">(</span><span class="n">nn</span><span class="p">.</span><span class="n">Module</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
-        <span class="n">self</span><span class="p">,</span>
-        <span class="n">src_vocab_size</span><span class="p">,</span>
-        <span class="n">embed_size</span><span class="p">,</span>
-        <span class="n">num_layers</span><span class="p">,</span>
-        <span class="n">heads</span><span class="p">,</span>
-        <span class="n">device</span><span class="p">,</span>
-        <span class="n">forward_expansion</span><span class="p">,</span>
-        <span class="n">dropout</span><span class="p">,</span>
-        <span class="n">max_length</span><span class="p">,</span>
-    <span class="p">):</span>
-
-        <span class="nf">super</span><span class="p">(</span><span class="n">Encoder</span><span class="p">,</span> <span class="n">self</span><span class="p">).</span><span class="nf">__init__</span><span class="p">()</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">embed_size</span> <span class="o">=</span> <span class="n">embed_size</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">word_embedding</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="nc">Embedding</span><span class="p">(</span><span class="n">src_vocab_size</span><span class="p">,</span> <span class="n">embed_size</span><span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">position_embedding</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="nc">Embedding</span><span class="p">(</span><span class="n">max_length</span><span class="p">,</span> <span class="n">embed_size</span><span class="p">)</span>
-
-        <span class="n">self</span><span class="p">.</span><span class="n">layers</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="nc">ModuleList</span><span class="p">(</span>
-            <span class="p">[</span>
-                <span class="nc">TransformerBlock</span><span class="p">(</span>
-                    <span class="n">embed_size</span><span class="p">,</span>
-                    <span class="n">heads</span><span class="p">,</span>
-                    <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span>
-                    <span class="n">forward_expansion</span><span class="o">=</span><span class="n">forward_expansion</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">num_layers</span><span class="p">)</span>
-            <span class="p">]</span>
-        <span class="p">)</span>
-
-        <span class="n">self</span><span class="p">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="nc">Dropout</span><span class="p">(</span><span class="n">dropout</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">mask</span><span class="p">):</span>
-        <span class="n">N</span><span class="p">,</span> <span class="n">seq_length</span> <span class="o">=</span> <span class="n">x</span><span class="p">.</span><span class="n">shape</span>
-        <span class="n">positions</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="nf">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">seq_length</span><span class="p">).</span><span class="nf">expand</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">seq_length</span><span class="p">).</span><span class="nf">to</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">device</span><span class="p">)</span>
-        <span class="n">out</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">dropout</span><span class="p">(</span>
-            <span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="nf">word_embedding</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">self</span><span class="p">.</span><span class="nf">position_embedding</span><span class="p">(</span><span class="n">positions</span><span class="p">))</span>
-        <span class="p">)</span>
-
-        <span class="c1"># In the Encoder the query, key, value are all the same, it's in the
-</span>        <span class="c1"># decoder this will change. This might look a bit odd in this case.
-</span>        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">self</span><span class="p">.</span><span class="n">layers</span><span class="p">:</span>
-            <span class="n">out</span> <span class="o">=</span> <span class="nf">layer</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">out</span>
-    
-
-<span class="k">class</span> <span class="nc">DecoderBlock</span><span class="p">(</span><span class="n">nn</span><span class="p">.</span><span class="n">Module</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">embed_size</span><span class="p">,</span> <span class="n">heads</span><span class="p">,</span> <span class="n">forward_expansion</span><span class="p">,</span> <span class="n">dropout</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
-        <span class="nf">super</span><span class="p">().</span><span class="nf">__init__</span><span class="p">()</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">norm</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="nc">LayerNorm</span><span class="p">(</span><span class="n">embed_size</span><span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">attention</span> <span class="o">=</span> <span class="nc">SelfAttention</span><span class="p">(</span><span class="n">embed_size</span><span class="p">,</span> <span class="n">heads</span><span class="o">=</span><span class="n">heads</span><span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">transformer_block</span> <span class="o">=</span> <span class="nc">TransformerBlock</span><span class="p">(</span>
-            <span class="n">embed_size</span><span class="p">,</span> <span class="n">heads</span><span class="p">,</span> <span class="n">dropout</span><span class="p">,</span> <span class="n">forward_expansion</span>
-        <span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="nc">Dropout</span><span class="p">(</span><span class="n">dropout</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">src_mask</span><span class="p">,</span> <span class="n">trg_mask</span><span class="p">):</span>
-        <span class="n">attention</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">attention</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">trg_mask</span><span class="p">)</span>
-        <span class="n">query</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">dropout</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="nf">norm</span><span class="p">(</span><span class="n">attention</span> <span class="o">+</span> <span class="n">x</span><span class="p">))</span>
-        <span class="n">out</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">transformer_block</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">src_mask</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">out</span>
-    
-    
-<span class="k">class</span> <span class="nc">Decoder</span><span class="p">(</span><span class="n">nn</span><span class="p">.</span><span class="n">Module</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
-        <span class="n">self</span><span class="p">,</span>
-        <span class="n">trg_vocab_size</span><span class="p">,</span>
-        <span class="n">embed_size</span><span class="p">,</span>
-        <span class="n">num_layers</span><span class="p">,</span>
-        <span class="n">heads</span><span class="p">,</span>
-        <span class="n">forward_expansion</span><span class="p">,</span>
-        <span class="n">dropout</span><span class="p">,</span>
-        <span class="n">device</span><span class="p">,</span>
-        <span class="n">max_length</span><span class="p">,</span>
-    <span class="p">):</span>
-        <span class="nf">super</span><span class="p">().</span><span class="nf">__init__</span><span class="p">()</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">word_embedding</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="nc">Embedding</span><span class="p">(</span><span class="n">trg_vocab_size</span><span class="p">,</span> <span class="n">embed_size</span><span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">position_embedding</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="nc">Embedding</span><span class="p">(</span><span class="n">max_length</span><span class="p">,</span> <span class="n">embed_size</span><span class="p">)</span>
-
-        <span class="n">self</span><span class="p">.</span><span class="n">layers</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="nc">ModuleList</span><span class="p">(</span>
-            <span class="p">[</span>
-                <span class="nc">DecoderBlock</span><span class="p">(</span><span class="n">embed_size</span><span class="p">,</span> <span class="n">heads</span><span class="p">,</span> <span class="n">forward_expansion</span><span class="p">,</span> <span class="n">dropout</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">num_layers</span><span class="p">)</span>
-            <span class="p">]</span>
-        <span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">fc_out</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="nc">Linear</span><span class="p">(</span><span class="n">embed_size</span><span class="p">,</span> <span class="n">trg_vocab_size</span><span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="nc">Dropout</span><span class="p">(</span><span class="n">dropout</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">enc_out</span><span class="p">,</span> <span class="n">src_mask</span><span class="p">,</span> <span class="n">trg_mask</span><span class="p">):</span>
-        <span class="n">N</span><span class="p">,</span> <span class="n">seq_length</span> <span class="o">=</span> <span class="n">x</span><span class="p">.</span><span class="n">shape</span>
-        <span class="n">positions</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="nf">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">seq_length</span><span class="p">).</span><span class="nf">expand</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">seq_length</span><span class="p">).</span><span class="nf">to</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">device</span><span class="p">)</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">dropout</span><span class="p">((</span><span class="n">self</span><span class="p">.</span><span class="nf">word_embedding</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">self</span><span class="p">.</span><span class="nf">position_embedding</span><span class="p">(</span><span class="n">positions</span><span class="p">)))</span>
-
-        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">self</span><span class="p">.</span><span class="n">layers</span><span class="p">:</span>
-            <span class="n">x</span> <span class="o">=</span> <span class="nf">layer</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">enc_out</span><span class="p">,</span> <span class="n">enc_out</span><span class="p">,</span> <span class="n">src_mask</span><span class="p">,</span> <span class="n">trg_mask</span><span class="p">)</span>
-
-        <span class="n">out</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">fc_out</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">out</span>
-    
-<span class="k">class</span> <span class="nc">Transformer</span><span class="p">(</span><span class="n">nn</span><span class="p">.</span><span class="n">Module</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
-        <span class="n">self</span><span class="p">,</span>
-        <span class="n">src_vocab_size</span><span class="p">,</span>
-        <span class="n">trg_vocab_size</span><span class="p">,</span>
-        <span class="n">src_pad_idx</span><span class="p">,</span>
-        <span class="n">trg_pad_idx</span><span class="p">,</span>
-        <span class="n">embed_size</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
-        <span class="n">num_layers</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
-        <span class="n">forward_expansion</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
-        <span class="n">heads</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
-        <span class="n">dropout</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-        <span class="n">device</span><span class="o">=</span><span class="sh">"</span><span class="s">cpu</span><span class="sh">"</span><span class="p">,</span>
-        <span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
-    <span class="p">):</span>
-
-        <span class="nf">super</span><span class="p">(</span><span class="n">Transformer</span><span class="p">,</span> <span class="n">self</span><span class="p">).</span><span class="nf">__init__</span><span class="p">()</span>
-
-        <span class="n">self</span><span class="p">.</span><span class="n">encoder</span> <span class="o">=</span> <span class="nc">Encoder</span><span class="p">(</span>
-            <span class="n">src_vocab_size</span><span class="p">,</span>
-            <span class="n">embed_size</span><span class="p">,</span>
-            <span class="n">num_layers</span><span class="p">,</span>
-            <span class="n">heads</span><span class="p">,</span>
-            <span class="n">device</span><span class="p">,</span>
-            <span class="n">forward_expansion</span><span class="p">,</span>
-            <span class="n">dropout</span><span class="p">,</span>
-            <span class="n">max_length</span><span class="p">,</span>
-        <span class="p">)</span>
-
-        <span class="n">self</span><span class="p">.</span><span class="n">decoder</span> <span class="o">=</span> <span class="nc">Decoder</span><span class="p">(</span>
-            <span class="n">trg_vocab_size</span><span class="p">,</span>
-            <span class="n">embed_size</span><span class="p">,</span>
-            <span class="n">num_layers</span><span class="p">,</span>
-            <span class="n">heads</span><span class="p">,</span>
-            <span class="n">forward_expansion</span><span class="p">,</span>
-            <span class="n">dropout</span><span class="p">,</span>
-            <span class="n">device</span><span class="p">,</span>
-            <span class="n">max_length</span><span class="p">,</span>
-        <span class="p">)</span>
-
-        <span class="n">self</span><span class="p">.</span><span class="n">src_pad_idx</span> <span class="o">=</span> <span class="n">src_pad_idx</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">trg_pad_idx</span> <span class="o">=</span> <span class="n">trg_pad_idx</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
-
-    <span class="k">def</span> <span class="nf">make_src_mask</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">src</span><span class="p">):</span>
-        <span class="n">src_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">src</span> <span class="o">!=</span> <span class="n">self</span><span class="p">.</span><span class="n">src_pad_idx</span><span class="p">).</span><span class="nf">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="nf">unsqueeze</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-        <span class="c1"># (N, 1, 1, src_len)
-</span>        <span class="k">return</span> <span class="n">src_mask</span><span class="p">.</span><span class="nf">to</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">device</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">make_trg_mask</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">trg</span><span class="p">):</span>
-        <span class="n">N</span><span class="p">,</span> <span class="n">trg_len</span> <span class="o">=</span> <span class="n">trg</span><span class="p">.</span><span class="n">shape</span>
-        <span class="n">trg_mask</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="nf">tril</span><span class="p">(</span><span class="n">torch</span><span class="p">.</span><span class="nf">ones</span><span class="p">((</span><span class="n">trg_len</span><span class="p">,</span> <span class="n">trg_len</span><span class="p">))).</span><span class="nf">expand</span><span class="p">(</span>
-            <span class="n">N</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">trg_len</span><span class="p">,</span> <span class="n">trg_len</span>
-        <span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">trg_mask</span><span class="p">.</span><span class="nf">to</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">device</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">trg</span><span class="p">):</span>
-        <span class="n">src_mask</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">make_src_mask</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
-        <span class="n">trg_mask</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">make_trg_mask</span><span class="p">(</span><span class="n">trg</span><span class="p">)</span>
-        <span class="n">enc_src</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">encoder</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">src_mask</span><span class="p">)</span>
-        <span class="n">out</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">decoder</span><span class="p">(</span><span class="n">trg</span><span class="p">,</span> <span class="n">enc_src</span><span class="p">,</span> <span class="n">src_mask</span><span class="p">,</span> <span class="n">trg_mask</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">out</span>
-    
-
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="sh">"</span><span class="s">__main__</span><span class="sh">"</span><span class="p">:</span>
-    <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="nf">device</span><span class="p">(</span><span class="sh">"</span><span class="s">cuda</span><span class="sh">"</span> <span class="k">if</span> <span class="n">torch</span><span class="p">.</span><span class="n">cuda</span><span class="p">.</span><span class="nf">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="sh">"</span><span class="s">cpu</span><span class="sh">"</span><span class="p">)</span>
-    <span class="nf">print</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
-
-    <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="nf">tensor</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">2</span><span class="p">]]).</span><span class="nf">to</span><span class="p">(</span>
-        <span class="n">device</span>
-    <span class="p">)</span>
-    <span class="n">trg</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="nf">tensor</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">]]).</span><span class="nf">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
-
-    <span class="n">src_pad_idx</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">trg_pad_idx</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">src_vocab_size</span> <span class="o">=</span> <span class="mi">10</span>
-    <span class="n">trg_vocab_size</span> <span class="o">=</span> <span class="mi">10</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="nc">Transformer</span><span class="p">(</span><span class="n">src_vocab_size</span><span class="p">,</span> <span class="n">trg_vocab_size</span><span class="p">,</span> <span class="n">src_pad_idx</span><span class="p">,</span> <span class="n">trg_pad_idx</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">).</span><span class="nf">to</span><span class="p">(</span>
-        <span class="n">device</span>
-    <span class="p">)</span>
-    <span class="n">out</span> <span class="o">=</span> <span class="nf">model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">trg</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-    <span class="nf">print</span><span class="p">(</span><span class="n">out</span><span class="p">.</span><span class="n">shape</span><span class="p">)</span>
-
-</code></pre></div></div>]]></content><author><name></name></author><category term="machine_learning"/><category term="jupyter-notebook"/><summary type="html"><![CDATA[based on classic titanic disaster data]]></summary></entry><entry><title type="html">Improve resume using LLM</title><link href="https://19revey.github.io/blog/2023/resume/" rel="alternate" type="text/html" title="Improve resume using LLM"/><published>2023-01-02T17:39:00+00:00</published><updated>2023-01-02T17:39:00+00:00</updated><id>https://19revey.github.io/blog/2023/resume</id><content type="html" xml:base="https://19revey.github.io/blog/2023/resume/"><![CDATA[<p>Redirecting to another page.</p>]]></content><author><name></name></author><category term="machine_learning"/><category term="coding"/><summary type="html"><![CDATA[improve resume based on job description using Google Gemini Pro]]></summary></entry><entry><title type="html">Compare classification models</title><link href="https://19revey.github.io/blog/2022/mlcomp/" rel="alternate" type="text/html" title="Compare classification models"/><published>2022-05-01T12:57:00+00:00</published><updated>2022-05-01T12:57:00+00:00</updated><id>https://19revey.github.io/blog/2022/mlcomp</id><content type="html" xml:base="https://19revey.github.io/blog/2022/mlcomp/"><![CDATA[<h3 id="compare-different-classification-models-using-the-classic-titanic-disaster-data">Compare different classification models using the classic titanic disaster data</h3> <p><br/></p> <table> <thead> <tr> <th>Model</th> <th>F1 score</th> </tr> </thead> <tbody> <tr> <td>Random Forest</td> <td>0.7917</td> </tr> <tr> <td>Logistic Regression</td> <td>0.7586</td> </tr> <tr> <td>Neural Network</td> <td>0.7536</td> </tr> <tr> <td>K-Neighbors</td> <td>0.7500</td> </tr> <tr> <td>Naive Bayes</td> <td>0.7436</td> </tr> <tr> <td>XGBClassifier</td> <td>0.7347</td> </tr> <tr> <td>Decision Tree</td> <td>0.7020</td> </tr> </tbody> </table> <div class="jupyter-notebook" style="position: relative; width: 100%; margin: 0 auto;"> <div class="jupyter-notebook-iframe-container"> <iframe src="/assets/jupyter/ml_compare.ipynb.html" style="position: absolute; top: 0; left: 0; border-style: none;" width="100%" height="100%" onload="this.parentElement.style.paddingBottom = (this.contentWindow.document.documentElement.scrollHeight + 10) + 'px'"></iframe> </div> </div>]]></content><author><name></name></author><category term="machine_learning"/><category term="jupyter-notebook"/><summary type="html"><![CDATA[based on classic titanic disaster data]]></summary></entry><entry><title type="html">Docker</title><link href="https://19revey.github.io/blog/2022/docker/" rel="alternate" type="text/html" title="Docker"/><published>2022-03-01T08:13:00+00:00</published><updated>2022-03-01T08:13:00+00:00</updated><id>https://19revey.github.io/blog/2022/docker</id><content type="html" xml:base="https://19revey.github.io/blog/2022/docker/"><![CDATA[<p><br/></p> <h3 id="dockerfile-example">Dockerfile example</h3> <div class="language-Dockerfile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Use a base image</span>
+</code></pre></div></div>]]></content><author><name></name></author><category term="machine_learning"/><category term="jupyter-notebook"/><summary type="html"><![CDATA[based on the paper "Attention is all you need"]]></summary></entry><entry><title type="html">Improve resume using LLM</title><link href="https://19revey.github.io/blog/2023/resume/" rel="alternate" type="text/html" title="Improve resume using LLM"/><published>2023-01-02T17:39:00+00:00</published><updated>2023-01-02T17:39:00+00:00</updated><id>https://19revey.github.io/blog/2023/resume</id><content type="html" xml:base="https://19revey.github.io/blog/2023/resume/"><![CDATA[<p>Redirecting to another page.</p>]]></content><author><name></name></author><category term="machine_learning"/><category term="coding"/><summary type="html"><![CDATA[improve resume based on job description using Google Gemini Pro]]></summary></entry><entry><title type="html">Compare classification models</title><link href="https://19revey.github.io/blog/2022/mlcomp/" rel="alternate" type="text/html" title="Compare classification models"/><published>2022-05-01T12:57:00+00:00</published><updated>2022-05-01T12:57:00+00:00</updated><id>https://19revey.github.io/blog/2022/mlcomp</id><content type="html" xml:base="https://19revey.github.io/blog/2022/mlcomp/"><![CDATA[<h3 id="compare-different-classification-models-using-the-titanic-disaster-data">Compare different classification models using the titanic disaster data</h3> <p><br/></p> <table> <thead> <tr> <th>Model</th> <th>F1 score</th> </tr> </thead> <tbody> <tr> <td>Random Forest</td> <td>0.7917</td> </tr> <tr> <td>Logistic Regression</td> <td>0.7586</td> </tr> <tr> <td>Neural Network</td> <td>0.7536</td> </tr> <tr> <td>K-Neighbors</td> <td>0.7500</td> </tr> <tr> <td>Naive Bayes</td> <td>0.7436</td> </tr> <tr> <td>XGBClassifier</td> <td>0.7347</td> </tr> <tr> <td>Decision Tree</td> <td>0.7020</td> </tr> </tbody> </table> <div class="jupyter-notebook" style="position: relative; width: 100%; margin: 0 auto;"> <div class="jupyter-notebook-iframe-container"> <iframe src="/assets/jupyter/ml_compare.ipynb.html" style="position: absolute; top: 0; left: 0; border-style: none;" width="100%" height="100%" onload="this.parentElement.style.paddingBottom = (this.contentWindow.document.documentElement.scrollHeight + 10) + 'px'"></iframe> </div> </div>]]></content><author><name></name></author><category term="machine_learning"/><category term="jupyter-notebook"/><summary type="html"><![CDATA[based on the titanic disaster data]]></summary></entry><entry><title type="html">Docker</title><link href="https://19revey.github.io/blog/2022/docker/" rel="alternate" type="text/html" title="Docker"/><published>2022-03-01T08:13:00+00:00</published><updated>2022-03-01T08:13:00+00:00</updated><id>https://19revey.github.io/blog/2022/docker</id><content type="html" xml:base="https://19revey.github.io/blog/2022/docker/"><![CDATA[<p><br/></p> <h3 id="dockerfile-example">Dockerfile example</h3> <div class="language-Dockerfile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Use a base image</span>
 <span class="c">#FROM python:3.11-slim</span>
 <span class="k">FROM</span><span class="s"> nvidia/cuda:12.1.0-base-ubuntu22.04</span>
 <span class="c"># Set environment variables</span>
