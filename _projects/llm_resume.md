@@ -21,7 +21,7 @@ related_publications: false
 
 
 <br>
-#### To start
+#### To run it locally
 
 Make sure docker is installed, otherwise run installdocker.sh first:
 ```bash
