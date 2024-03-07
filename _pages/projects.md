@@ -2,7 +2,7 @@
 layout: page
 title: projects
 permalink: /projects/
-description: some funded research projects and some machine learning projects
+description: some funded research and machine learning projects
 nav: true
 nav_order: 3
 # display_categories: [work, fun]
