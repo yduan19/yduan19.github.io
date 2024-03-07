@@ -1,6 +1,6 @@
 ---
 layout: page
-title: ATS resume checker
+title: llm-based resume optimizer
 description: powered by Google Gemini pro
 img: assets/img/resume.png
 importance: 1
@@ -9,8 +9,16 @@ related_publications: false
 ---
 
 
-### ATS resume checker website hosted on Amazon Web Service: 
-### [http://aws-hosted-resume-checker.com](http://54.226.187.124:8501/) and [https://llmresume.streamlit.app/](https://llmresume.streamlit.app/)
+
+## The app is hosted on streamlit cloud: [https://llmresume.streamlit.app/](https://llmresume.streamlit.app/)
+
+<br>
+### Paste the job description and upload your resume to obtain insights, including: 
+- an overall match percentage; 
+- key skills that should be highlighted in your resume; 
+- identification of keywords from the job description that are not present in your resume.
+
+
 
 <br>
 #### To start
@@ -30,9 +38,6 @@ docker compose up
 
 
 
-Paste the job description and upload your resume to obtain insights, including: 
-    1. an overall match percentage; 
-    2. key skills that should be highlighted in your resume; 
-    3. identification of keywords from the job description that are not present in your resume.
+
 
 ### Source code is available on [github](https://github.com/19revey/LLM_resume.git)

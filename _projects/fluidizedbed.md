@@ -28,10 +28,8 @@ related_publications: false
 
 ### Fluidized bed has many advantages as gas-solid reactors or powder handling processors because of its advantages of high heat and mass transfer, temperature homogeneity, and mixing property. 
 
-<br>
 ###### The primary challenge in simulating full-scale fluidized beds stems from significant scale differences: the apparatus spans meters, whereas the particles are mere millimeters or even smaller.
 
-<br>
 ###### As it's not feasible to simulate the system by tracking each particle individually, the aim of this project is to model the particle phase as a continuous fluid. This is achieved by employing the Kinetic Theory of Granular Flow in the framework of Two Fluid Model (TFM).
 
 

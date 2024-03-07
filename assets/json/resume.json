@@ -1,25 +1,25 @@
 {
-  "basics": {
-    "name": "Yifei Duan",
-    "image": "",
-    "email": "yfduan5@gmail.com",
-    "url": "https://19revey.github.io/",
-    // "summary": "A German-born theoretical physicist, widely ranked among the greatest and most influential scientists of all time",
-    "location": {
-      "address": "2712 Broadway St",
-      "postalCode": "CA 94115",
-      "city": "San Francisco",
-      "countryCode": "US",
-      "region": "California"
-    },
-    "profiles": [
-      {
-        "network": "Twitter",
-        "username": "AlbertEinstein",
-        "url": "https://twitter.com/AlbertEinstein"
-      }
-    ]
-  },
+  // "basics": {
+  //   "name": "Yifei Duan",
+  //   "image": "",
+  //   "email": "yfduan5@gmail.com",
+  //   "url": "https://19revey.github.io/",
+  //   // "summary": "A German-born theoretical physicist, widely ranked among the greatest and most influential scientists of all time",
+  //   "location": {
+  //     "address": "2712 Broadway St",
+  //     "postalCode": "CA 94115",
+  //     "city": "San Francisco",
+  //     "countryCode": "US",
+  //     "region": "California"
+  //   },
+  //   "profiles": [
+  //     {
+  //       "network": "Twitter",
+  //       "username": "AlbertEinstein",
+  //       "url": "https://twitter.com/AlbertEinstein"
+  //     }
+  //   ]
+  // },
   "work": [
     {
       "name": "Northwestern University",
