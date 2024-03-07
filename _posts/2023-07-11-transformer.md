@@ -56,7 +56,7 @@ device = (
 <a class="anchor" id="section4"></a>
 <h2 style="color:purple;font-size: 1.5em;">Word Embeddings</h2>
 
-Each word will be mapped to corresponding $d_{model}=512$ embedding vector. Suppose we have batch size of N=32 and sequence length of T=10 (10 words). The the output will be NxTxC (32X10X512).
+Each word will be mapped to corresponding $$d_{model}=512$$ embedding vector. Suppose we have batch size of N=32 and sequence length of T=10 (10 words). The the output will be NxTxC (32X10X512).
 
 ```python
 class Embedding(nn.Module):
