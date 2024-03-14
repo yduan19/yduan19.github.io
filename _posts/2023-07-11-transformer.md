@@ -30,12 +30,13 @@ Basic transformer with an encoder-decoder architecture for language translation 
 * [1. Introduction](#section1)
 * [2. Import libraries](#section2)
 * [3. Basic components](#section3)
-  - [Create Word Embeddings](#section4)
+  - [Word Embeddings](#section4)
   - [Positional Encoding](#section5)
   - [Self Attention](#section6)
-* [4. Encoder](#section7)
-* [5. Decoder](#section8)
-* [6. Transformer](#section9)
+  - [Transformer Block](#section7)
+* [4. Encoder](#section8)
+* [5. Decoder](#section9)
+* [6. Transformer](#section10)
 
 
 
@@ -70,7 +71,7 @@ device = (
 <a class="anchor" id="section4"></a>
 <h2 style="color:purple;font-size: 1.5em;">Word Embeddings</h2>
 
-Each word will be mapped to corresponding $d_{model}=512$ embedding vector. Suppose we have batch_size of 32 and sequence_length of 10 (10 words). The the output will be Batch_size X sequence_length X embedding_dim  (32X10X512).
+Each word will be mapped to corresponding $$d_{model}=512$$ embedding vector. Suppose we have batch_size of 32 and sequence_length of 10 (10 words). The the output will be Batch_size X sequence_length X embedding_dim  (32X10X512).
 
 ```python
 class Embedding(nn.Module):
@@ -225,8 +226,7 @@ class MultiHeadAttention(nn.Module):
 ```
 
 <a class="anchor" id="section7"></a>
-<h2 style="color:purple;font-size: 2em;"> 4. Encoder</h2>
-
+<h2 style="color:purple; font-size: 1.5em;"> Transformer Block</h2>
 ```python
 class TransformerBlock(nn.Module):
     def __init__(self, embed_dim, expansion_factor=4, n_heads=8):
@@ -274,7 +274,12 @@ class TransformerBlock(nn.Module):
 
         return norm2_out
 
+```
 
+<a class="anchor" id="section8"></a>
+<h2 style="color:purple;font-size: 2em;"> 4. Encoder</h2>
+
+```python
 class TransformerEncoder(nn.Module):
     """
     Args:
@@ -304,7 +309,7 @@ class TransformerEncoder(nn.Module):
         return out  #32x10x512
 ```
 
-<a class="anchor" id="section8"></a>
+<a class="anchor" id="section9"></a>
 <h2 style="color:purple;font-size: 2em;"> 5. Decoder</h2>
 
 ```python
@@ -395,7 +400,7 @@ class TransformerDecoder(nn.Module):
 ```
 
 
-<a class="anchor" id="section9"></a>
+<a class="anchor" id="section10"></a>
 <h2 style="color:purple;font-size: 2em;"> 6. Transformer</h2>
 
 ```python
