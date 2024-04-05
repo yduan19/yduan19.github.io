@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Transformer from scratch using PyTorch
+title: Transformer using PyTorch
 date: 2023-07-11 08:57:00-0400
 description: based on the paper "Attention is all you need"
 tags: 
