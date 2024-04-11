@@ -40,4 +40,3 @@ docker compose up
 
 
 
-### Source code is available on [github](https://github.com/19revey/LLM_resume.git)
