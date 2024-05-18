@@ -1,8 +1,8 @@
 ---
 layout: post
-title: Compare classification models
+title: Compare regression models
 date: 2022-05-01 08:57:00-0400
-description: based on the titanic disaster data
+description: based on the alien age data
 tags: 
 categories: machine_learning
 related_posts: true
