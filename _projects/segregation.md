@@ -8,6 +8,8 @@ category: work
 related_publications: false
 ---
 
+
+
 ### When it comes to challenges in bulk material handling, no discussion would be complete without touching on segregation.
 
 After water, granular media are the most ubiquitous precursor material used in industry with an estimated annual consumption exceeding 1 trillion kg.
@@ -57,8 +59,6 @@ so that granular materials remain mixed.
 420 numerical simulations were conducted using code running on CUDA-enabled GPUs (RTX3090) for different combinations of size and density ratios to find the optimal combination of particle size ratio $$R_d$$, density ratio $$R_\rho$$, and mixture concentration $$c$$.
 
 
-
-
 <div class="row">
     <div class="col-sm mt-3 mt-md-0">
         {% include figure.liquid path="assets/img/proj_segregation/equilibrium.png" title="example image" class="img-fluid rounded z-depth-1 custom-image1" %}
@@ -70,3 +70,7 @@ so that granular materials remain mixed.
 <div class="caption">
     Particles remain mixed along the curve for iso-concentration curves for the corresponding size  and density ratio.
 </div>
+
+
+### Conference presentation at APS DFD 2020
+<iframe width="560" height="315" src="https://www.youtube.com/embed/8gC2113uDBY?si=ek8OxEOSgpTqUtXR" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
