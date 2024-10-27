@@ -30,7 +30,7 @@ social: false # includes social icons at the bottom of the page
 
 <!-- Write your biography here. Tell the world about yourself. Link to your favorite [subreddit](http://reddit.com). You can put a picture in, too. The code is already in, just name your picture `prof_pic.jpg` and put it in the `img/` folder. -->
 
-Hello, I am a postodctoral researcher at Northwestern University working on computational modeling of complex fluids. My research spans the fields of mathematics, physics, machine learning, and computer science.
+Hello, I am a postodctoral researcher at Northwestern University working on computational modeling of complex fluids. My research spans the fields of mathematics, physics, machine learning, and high performance computing.
 
 <!-- -"If you can't explain it simply you don't understand it well enough"
 --Albert Einstein\\ -->
