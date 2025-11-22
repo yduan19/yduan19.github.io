@@ -30,7 +30,9 @@ social: false # includes social icons at the bottom of the page
 
 <!-- Write your biography here. Tell the world about yourself. Link to your favorite [subreddit](http://reddit.com). You can put a picture in, too. The code is already in, just name your picture `prof_pic.jpg` and put it in the `img/` folder. -->
 
-Hello, I am a postodctoral researcher at Northwestern University working on computational modeling of complex fluids. My research spans the fields of mathematics, physics, machine learning, and high performance computing.
+I'm a Machine Learning Engineer at Truveta, where I develop Large Language Models for clinical note extraction and healthcare AI applications. Prior to this, I was a postdoctoral researcher at Northwestern University, focusing on computational modeling of complex fluids and granular materials.
+
+My work bridges multiple disciplines, mathematics, physics, machine learning, and high-performance computing, to solve challenging problems at the intersection of scientific computing and artificial intelligence. I'm passionate about leveraging cutting-edge ML techniques to accelerate scientific discovery and save lives through data and machine learning.
 
 <!-- -"If you can't explain it simply you don't understand it well enough"
 --Albert Einstein\\ -->
